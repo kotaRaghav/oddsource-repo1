@@ -1,0 +1,35 @@
+name: Sync Folder from oddsource-repo1 to oddtarget-repo2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout oddsource-repo1
+        uses: actions/checkout@v3
+
+      - name: Copy files to temporary folder
+        run: |
+          mkdir temp-sync
+          cp -r odd-folder-sync/* temp-sync/
+
+      - name: Checkout oddtarget-repo2
+        uses: actions/checkout@v3
+        with:
+          repository: kotaRaghav/oddtarget-repo2
+          token: ${{ secrets.ODDTARGET_TOKEN }}
+          path: oddtarget-repo2
+
+      - name: Move files into oddtarget-repo2 and push
+        run: |
+          cp -r temp-sync/* oddtarget-repo2/odd-folder-sync/
+          cd oddtarget-repo2
+          git config --global user.name "kotaRaghav"
+          git config --global user.email "raghavendraasdf@gmail.com"
+          git add .
+          git commit -m "Sync files from oddsource-repo1"
+          git push origin main
